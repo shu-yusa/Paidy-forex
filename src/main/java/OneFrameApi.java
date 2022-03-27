@@ -22,9 +22,12 @@ public class OneFrameApi implements OneFrameApiInterface  {
     }
 
     final public ExchangeRate[] exchangeRates(CurrencyPair[] currencyPairs) {
-        URI url = URI.create(String.format(
-                "%s/rates?pair=%s%s",
-                config.host(), currencyPairs[0].fromCurrency(), currencyPairs[0].toCurrency()));
+        String pairs = "";
+        for (CurrencyPair pair : currencyPairs) {
+            pairs = pairs.concat(String.format("&pair=%s%s", pair.fromCurrency(), pair.toCurrency()));
+        }
+        pairs = pairs.replaceFirst("&", "?");
+        URI url = URI.create(String.format("%s/rates%s", config.host(), pairs));
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder().uri(url)
                 .header("Accept", "application/json")
