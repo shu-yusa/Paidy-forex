@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  squid:
+    image: paidyinc/one-frame:latest
+    container_name: one-frame
+    ports:
+      - 8080:8080
