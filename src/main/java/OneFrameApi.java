@@ -11,7 +11,7 @@ import java.util.TimeZone;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
-public class OneFrameApi implements OneFrameApiInterface  {
+public class OneFrameApi implements ExchangeRateApi {
     ApiConfig config;
     SimpleDateFormat dateFormat;
 

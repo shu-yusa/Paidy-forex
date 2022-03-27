@@ -1,5 +1,3 @@
-import java.util.List;
-
-public interface OneFrameApiInterface {
+public interface ExchangeRateApi {
     abstract public ExchangeRate[] exchangeRates(CurrencyPair[] currencyPairs);
 }
