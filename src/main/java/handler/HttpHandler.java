@@ -8,6 +8,7 @@ import domain.ExchangeRateService;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Map;
@@ -27,7 +28,9 @@ public class HttpHandler {
             byte[] responseBody = responseText.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
             exchange.sendResponseHeaders(404, responseBody.length);
-            exchange.getResponseBody().write(responseBody);
+            OutputStream os = exchange.getResponseBody();
+            os.write(responseBody);
+            os.close();
             return;
         }
 
@@ -40,7 +43,9 @@ public class HttpHandler {
             byte[] responseBody = responseText.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(400, responseBody.length);
-            exchange.getResponseBody().write(responseBody);
+            OutputStream os = exchange.getResponseBody();
+            os.write(responseBody);
+            os.close();
             return;
         }
 
@@ -57,7 +62,9 @@ public class HttpHandler {
         exchange.getResponseHeaders().add("Content-Type", "application/json");
         try {
             exchange.sendResponseHeaders(200, responseBody.length);
-            exchange.getResponseBody().write(responseBody);
+            OutputStream os = exchange.getResponseBody();
+            os.write(responseBody);
+            os.close();
         } catch(IOException ex) {
             ex.printStackTrace();
         }
