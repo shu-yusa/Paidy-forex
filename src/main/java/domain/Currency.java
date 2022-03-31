@@ -1,4 +1,6 @@
-enum Currency {
+package domain;
+
+public enum Currency {
     AUD,
     CAD,
     CHF,

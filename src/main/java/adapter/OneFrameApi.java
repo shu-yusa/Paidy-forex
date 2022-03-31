@@ -1,3 +1,5 @@
+package adapter;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -8,6 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.TimeZone;
 
+import domain.*;
 import org.json.JSONObject;
 import org.json.JSONArray;
 

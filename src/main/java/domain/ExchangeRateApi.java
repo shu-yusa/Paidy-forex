@@ -1,3 +1,5 @@
+package domain;
+
 public interface ExchangeRateApi {
-    abstract public ExchangeRate[] exchangeRates(CurrencyPair[] currencyPairs);
+    ExchangeRate[] exchangeRates(CurrencyPair[] currencyPairs);
 }

@@ -1,8 +1,16 @@
+package adapter;
+
+import domain.ApiConfig;
+import domain.CurrencyPair;
+import domain.ExchangeRate;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import domain.Currency;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+
 
 public class OneFrameTest {
     OneFrameApi apiClient;
@@ -16,7 +24,7 @@ public class OneFrameTest {
     @Test
     public void testGetSingleExchangeRate() {
         int clockPrecisionRangeInMillis = 15000;
-        CurrencyPair pair = new CurrencyPair(Currency.USD, Currency.JPY);
+        CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
         Calendar date = Calendar.getInstance();
         Date timeBeforeApiCall = new Date(date.getTimeInMillis() - clockPrecisionRangeInMillis);
 
@@ -34,8 +42,8 @@ public class OneFrameTest {
     @Test
     public void testGetTwoExchangeRates() {
         CurrencyPair[] currencyPairs = new CurrencyPair[]{
-            new CurrencyPair(Currency.USD, Currency.JPY),
-            new CurrencyPair(Currency.USD, Currency.AUD)
+            new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY")),
+            new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("AUD"))
         };
 
                 // Exercise SUT

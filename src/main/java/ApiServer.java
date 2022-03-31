@@ -1,5 +1,8 @@
+import domain.ApiConfig;
+import domain.ExchangeRateApi;
+import domain.ExchangeRateService;
+import adapter.OneFrameApi;
 import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpExchange;
 import handler.HttpHandler;
 
 import java.util.concurrent.Executors;
@@ -8,15 +11,15 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class ApiServer {
-    ExchangeRateApi apiClient;
-    public ApiServer(ExchangeRateApi apiClient) {
-        this.apiClient = apiClient;
-    }
-
     public static void main(String... args) throws IOException {
+        HttpHandler handler = new HttpHandler(
+            new ExchangeRateService(
+                new OneFrameApi(
+                    new ApiConfig(
+                        "http://localhost:8080", "10dc303535874aeccc86a8251e6992f5"))));
+
         HttpServer server = HttpServer.create(new InetSocketAddress(80), 0);
         server.setExecutor(Executors.newCachedThreadPool());
-        HttpHandler handler = new HttpHandler();
         server.createContext("/", handler::handle);
         server.start();
         System.out.println("start listening on port 80");
