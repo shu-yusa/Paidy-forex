@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ExchangeRateServiceTest {
     @Test
@@ -29,5 +30,21 @@ public class ExchangeRateServiceTest {
         assertEquals(0.82, result.ask(), 0.00001);
         assertEquals(0.71, result.price(), 0.00001);
         assertEquals(timeStamp, result.timeStamp());
+    }
+
+    @Test
+    public void testGetExchangeRateThrowsExceptionIfExternalServiceIsUnavailable() {
+        CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
+
+        // Exercise SUT
+        ExchangeRateService service = new ExchangeRateService(currencyPairs -> {
+            throw new ExchangeRateApiUnavailableException();
+        });
+
+        try {
+            service.getExchangeRate(pair);
+            fail();
+        } catch (ExchangeRateApiUnavailableException ignored) {
+        }
     }
 }
