@@ -25,16 +25,4 @@ public class ApiServerTest {
         assertEquals("JPY", result.get("to"));
         assertNotNull(result.get("price"));
     }
-
-    @Test
-    public void testMissingFromParameter() throws InterruptedException, IOException {
-        URI url = URI.create("http://127.0.0.1?to=JPY");
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(url)
-                .header("Accept", "application/json")
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(400, response.statusCode());
-    }
 }

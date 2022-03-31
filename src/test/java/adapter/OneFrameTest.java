@@ -1,12 +1,9 @@
 package adapter;
 
-import domain.ApiConfig;
-import domain.CurrencyPair;
-import domain.ExchangeRate;
+import domain.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import domain.Currency;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -22,7 +19,7 @@ public class OneFrameTest {
     }
 
     @Test
-    public void testGetSingleExchangeRate() {
+    public void testGetSingleExchangeRate() throws ExchangeRateApiUnavailableException {
         int clockPrecisionRangeInMillis = 15000;
         CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
         Calendar date = Calendar.getInstance();
@@ -40,7 +37,7 @@ public class OneFrameTest {
     }
 
     @Test
-    public void testGetTwoExchangeRates() {
+    public void testGetTwoExchangeRates() throws ExchangeRateApiUnavailableException {
         CurrencyPair[] currencyPairs = new CurrencyPair[]{
             new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY")),
             new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("AUD"))

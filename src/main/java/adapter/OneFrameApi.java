@@ -24,7 +24,7 @@ public class OneFrameApi implements ExchangeRateApi {
         this.dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    final public ExchangeRate[] exchangeRates(CurrencyPair[] currencyPairs) {
+    final public ExchangeRate[] exchangeRates(CurrencyPair[] currencyPairs) throws ExchangeRateApiUnavailableException{
         String pairs = "";
         for (CurrencyPair pair : currencyPairs) {
             pairs = pairs.concat(String.format("&pair=%s%s", pair.fromCurrency(), pair.toCurrency()));
@@ -61,8 +61,8 @@ public class OneFrameApi implements ExchangeRateApi {
             }
             return exchangeRates;
         } catch (IOException | InterruptedException e) {
-            System.out.println("Failed in http request");
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            throw new ExchangeRateApiUnavailableException();
         }
     }
 }

@@ -1,10 +1,7 @@
 package handler;
 
 import com.sun.net.httpserver.HttpExchange;
-import domain.Currency;
-import domain.CurrencyPair;
-import domain.ExchangeRate;
-import domain.ExchangeRateService;
+import domain.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -14,8 +11,11 @@ import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
 
+
 public class HttpHandler {
     ExchangeRateService exchangeRateService;
+    static final String CONTENT_TYPE_JSON = "application/json";
+    static final String CONTENT_TYPE_HTML = "text/html";
 
     public HttpHandler(ExchangeRateService exchangeRateService) {
         this.exchangeRateService = exchangeRateService;
@@ -25,12 +25,7 @@ public class HttpHandler {
         String path = exchange.getRequestURI().getPath();
         if (!Objects.equals(exchange.getRequestMethod(), "GET") || !Objects.equals(path, "/")) {
             String responseText = "<html><body>Not Found</body></html>";
-            byte[] responseBody = responseText.getBytes(StandardCharsets.UTF_8);
-            exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
-            exchange.sendResponseHeaders(404, responseBody.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBody);
-            os.close();
+            this.returnResponse(exchange, 404, CONTENT_TYPE_HTML, responseText);
             return;
         }
 
@@ -39,35 +34,39 @@ public class HttpHandler {
         JSONObject errors = this.validateQueryParameters(queryMap);
 
         if (!errors.isEmpty()) {
-            String responseText = (new JSONObject()).put("errors", errors).toString();
-            byte[] responseBody = responseText.getBytes(StandardCharsets.UTF_8);
-            exchange.getResponseHeaders().add("Content-Type", "application/json");
-            exchange.sendResponseHeaders(400, responseBody.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBody);
-            os.close();
+            JSONObject responseObject = new JSONObject();
+            responseObject.put("message", "Parameters are invalid").put("errors", errors);
+            String responseText = responseObject.toString();
+            this.returnResponse(exchange, 400, CONTENT_TYPE_JSON, responseText);
             return;
         }
 
-        ExchangeRate exchangeRate = this.exchangeRateService.getExchangeRate(new CurrencyPair(
-            Currency.valueOf(queryMap.get("from")),
-            Currency.valueOf(queryMap.get("to"))));
+        ExchangeRate exchangeRate;
+        try {
+            exchangeRate = this.exchangeRateService.getExchangeRate(new CurrencyPair(
+                    Currency.valueOf(queryMap.get("from")),
+                    Currency.valueOf(queryMap.get("to"))));
+        } catch (ExchangeRateApiUnavailableException e) {
+            String responseText = (new JSONObject()).put("message", "Service is temporarily unavailable").toString();
+            this.returnResponse(exchange, 503, CONTENT_TYPE_JSON, responseText);
+            return;
+        }
 
         String responseText = new JSONObject()
                 .put("from", exchangeRate.currencyPair().fromCurrency())
                 .put("to", exchangeRate.currencyPair().toCurrency())
                 .put("price", exchangeRate.price())
                 .toString();
+        this.returnResponse(exchange, 200, CONTENT_TYPE_JSON, responseText);
+    }
+
+    private void returnResponse(HttpExchange exchange, int statusCode, String contentType, String responseText) throws IOException {
         byte[] responseBody = responseText.getBytes(StandardCharsets.UTF_8);
-        exchange.getResponseHeaders().add("Content-Type", "application/json");
-        try {
-            exchange.sendResponseHeaders(200, responseBody.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBody);
-            os.close();
-        } catch(IOException ex) {
-            ex.printStackTrace();
-        }
+        exchange.getResponseHeaders().add("Content-Type", contentType);
+        exchange.sendResponseHeaders(statusCode, responseBody.length);
+        OutputStream os = exchange.getResponseBody();
+        os.write(responseBody);
+        os.close();
     }
 
     private JSONObject validateQueryParameters(Map<String, String> queryMap) {

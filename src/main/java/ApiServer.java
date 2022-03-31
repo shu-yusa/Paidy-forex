@@ -1,5 +1,4 @@
 import domain.ApiConfig;
-import domain.ExchangeRateApi;
 import domain.ExchangeRateService;
 import adapter.OneFrameApi;
 import com.sun.net.httpserver.HttpServer;

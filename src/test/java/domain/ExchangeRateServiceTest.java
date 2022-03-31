@@ -1,7 +1,5 @@
 package domain;
 
-import adapter.OneFrameApi;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -12,16 +10,8 @@ import java.util.TimeZone;
 import static org.junit.Assert.assertEquals;
 
 public class ExchangeRateServiceTest {
-    OneFrameApi apiClient;
-
-    @Before
-    public void setUp() {
-        ApiConfig config = new ApiConfig("http://localhost:8080", "10dc303535874aeccc86a8251e6992f5");
-        this.apiClient = new OneFrameApi(config);
-    }
-
     @Test
-    public void testGetExchangeRate() throws ParseException {
+    public void testGetExchangeRate() throws ParseException, ExchangeRateApiUnavailableException {
         CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
