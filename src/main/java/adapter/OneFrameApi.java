@@ -1,6 +1,7 @@
 package adapter;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.text.ParseException;
@@ -16,15 +17,26 @@ import org.json.JSONArray;
 
 public class OneFrameApi implements ExchangeRateApi {
     ApiConfig config;
-    SimpleDateFormat dateFormat;
 
     public OneFrameApi(ApiConfig config) {
         this.config = config;
-        this.dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        this.dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    final public ExchangeRate[] exchangeRates(CurrencyPair[] currencyPairs) throws ExchangeRateApiUnavailableException{
+    private Date parseDate(String dateString) throws ParseException {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date timeStamp;
+        try {
+            timeStamp = dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            timeStamp = dateFormat.parse(dateString);
+        }
+        return timeStamp;
+    }
+
+    public final ExchangeRate[] exchangeRates(CurrencyPair[] currencyPairs) throws ExchangeRateApiUnavailableException {
         String pairs = "";
         for (CurrencyPair pair : currencyPairs) {
             pairs = pairs.concat(String.format("&pair=%s%s", pair.fromCurrency(), pair.toCurrency()));
@@ -37,19 +49,20 @@ public class OneFrameApi implements ExchangeRateApi {
                 .header("token", config.token()).build();
 
         Date timeStamp;
-
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            JSONArray jsonArray = new JSONArray(response.body());
+            String responseBody = response.body();
+
+            if (responseBody.contains("error")) {
+                JSONObject jsonObject = new JSONObject(response.body());
+                throw new ExchangeRateApiUnavailableException(jsonObject.getString("error"));
+            }
+
+            JSONArray jsonArray = new JSONArray(responseBody);
             ExchangeRate[] exchangeRates = new ExchangeRate[jsonArray.length()];
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject obj = jsonArray.getJSONObject(i);
-                try {
-                    timeStamp = dateFormat.parse(obj.getString("time_stamp"));
-                } catch (ParseException e) {
-                    System.out.println("Failed in parsing time");
-                    throw new RuntimeException(e);
-                }
+                timeStamp = this.parseDate(obj.getString("time_stamp"));
                 exchangeRates[i] = new ExchangeRate(
                         new CurrencyPair(
                                 Currency.valueOf(obj.getString("from")),
@@ -62,7 +75,10 @@ public class OneFrameApi implements ExchangeRateApi {
             return exchangeRates;
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            throw new ExchangeRateApiUnavailableException();
+            throw new ExchangeRateApiUnavailableException(e.getMessage());
+        } catch (ParseException e) {
+            System.out.println("Failed in parsing time");
+            throw new RuntimeException(e);
         }
     }
 }

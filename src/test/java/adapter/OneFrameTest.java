@@ -2,6 +2,7 @@ package adapter;
 
 import domain.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -43,12 +44,32 @@ public class OneFrameTest {
             new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("AUD"))
         };
 
-                // Exercise SUT
+        // Exercise SUT
         ExchangeRate[] exchangeRates = apiClient.exchangeRates(currencyPairs);
 
         // Verify result
         assertEquals(2, exchangeRates.length);
         assertEquals(currencyPairs[0], exchangeRates[0].currencyPair());
         assertEquals(currencyPairs[1], exchangeRates[1].currencyPair());
+    }
+
+    @Test
+    @Ignore("Run separately to test the rate limit")
+    public void testServerRateLimit() {
+        CurrencyPair[] currencyPairs = new CurrencyPair[]{
+                new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY")),
+                new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("AUD"))
+        };
+
+        // Exercise SUT
+        try {
+            for (int i = 0; i < 1001; i++) {
+                apiClient.exchangeRates(currencyPairs);
+            }
+            fail();
+        } catch (ExchangeRateApiUnavailableException e) {
+            // Verify result
+            assertTrue(e.getMessage().contains("Quota"));
+        }
     }
 }

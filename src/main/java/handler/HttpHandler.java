@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import domain.*;
 import org.json.JSONObject;
 
+import javax.rmi.ssl.SslRMIClientSocketFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +50,9 @@ public class HttpHandler {
         } catch (ExchangeRateApiUnavailableException e) {
             String responseText = (new JSONObject()).put("message", "Service is temporarily unavailable").toString();
             this.returnResponse(exchange, 503, CONTENT_TYPE_JSON, responseText);
+            return;
+        } catch (Exception e) {
+            System.out.println(e.toString());
             return;
         }
 

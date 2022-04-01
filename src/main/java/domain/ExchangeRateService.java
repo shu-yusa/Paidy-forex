@@ -10,7 +10,7 @@ public class ExchangeRateService {
         ExchangeRate[] exchangeRates = this.exchangeRateApi.exchangeRates(new CurrencyPair[]{currencyPair});
         if (exchangeRates.length < 1) {
             System.out.println("Unexpected API response");
-            throw new ExchangeRateApiUnavailableException();
+            throw new ExchangeRateApiUnavailableException("Empty API response");
         }
         return exchangeRates[0];
     }
