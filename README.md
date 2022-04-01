@@ -16,7 +16,7 @@ docker compose up -d  # This runs the paidyinc/one-frame container
 ./run.sh  # This runs application on port 80. To use a different port, config.properties needs to be modified.
 ```
 
-To get an exchange rate, run the following command
+To get an exchange rate, run the following command (or open the url with a web browser)
 ```bash
 curl "http://127.0.0.1/?from=USD&to=JPY"
 ```
@@ -116,7 +116,7 @@ Content-length: 38
 {"price":0.29,"from":"USD","to":"JPY"}
 ```
 ### Error Response
-When either or both of from or to parameters are missing, the application returns 400 response. Here is an example response when to parameter is missing.
+When either or both of from or to parameters are missing, the application returns 400 response. Here is an example response when `to` parameter is missing.
 
 ```
 HTTP/1.1 400 Bad Request
