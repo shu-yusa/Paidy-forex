@@ -19,9 +19,9 @@ public class ExchangeRateServiceTest {
         Date timeStamp = dateFormat.parse("2019-01-01T00:00:00.000");
 
         // Exercise SUT
-        ExchangeRateService service = new ExchangeRateService(currencyPairs -> new ExchangeRate[]{
+        ExchangeRateService service = new ExchangeRateService(currencyPairs ->
                 new ExchangeRate(pair, 0.61, 0.82, 0.71, timeStamp)
-        });
+        );
         ExchangeRate result = service.getExchangeRate(pair);
 
         // Verify result

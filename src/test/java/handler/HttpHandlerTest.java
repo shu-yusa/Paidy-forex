@@ -21,9 +21,7 @@ public class HttpHandlerTest {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date time = dateFormat.parse(timeStamp);
-        return new ExchangeRateService(currencyPairs -> new ExchangeRate[]{
-                new ExchangeRate(pair, bid, ask, price, time)
-        });
+        return new ExchangeRateService(currencyPairs -> new ExchangeRate(pair, bid, ask, price, time));
     }
 
     @Test

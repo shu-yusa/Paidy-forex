@@ -7,11 +7,6 @@ public class ExchangeRateService {
     }
 
     public ExchangeRate getExchangeRate(CurrencyPair currencyPair) throws ExchangeRateApiUnavailableException {
-        ExchangeRate[] exchangeRates = this.exchangeRateApi.exchangeRates(new CurrencyPair[]{currencyPair});
-        if (exchangeRates.length < 1) {
-            System.out.println("Unexpected API response");
-            throw new ExchangeRateApiUnavailableException("Empty API response");
-        }
-        return exchangeRates[0];
+        return this.exchangeRateApi.exchangeRates(currencyPair);
     }
 }
