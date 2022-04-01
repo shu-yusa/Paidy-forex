@@ -27,7 +27,7 @@ public class ExchangeRateServiceTest {
 
     @Test
     public void testGetExchangeRate() throws ParseException, ExchangeRateApiUnavailableException {
-        CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
+        CurrencyPair pair = new CurrencyPair(Currency.USD, Currency.JPY);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date timeStamp = dateFormat.parse("2019-01-01T00:00:00.000");
@@ -50,7 +50,7 @@ public class ExchangeRateServiceTest {
 
     @Test
     public void testGetExchangeRateThrowsExceptionIfExternalServiceIsUnavailable() {
-        CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
+        CurrencyPair pair = new CurrencyPair(Currency.USD, Currency.JPY);
 
         // Exercise SUT
         ExchangeRateService service = new ExchangeRateService(
@@ -69,7 +69,7 @@ public class ExchangeRateServiceTest {
 
     @Test
     public void testCachedResultIsReturnedForSubsequentCalls() throws ExchangeRateApiUnavailableException {
-        CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
+        CurrencyPair pair = new CurrencyPair(Currency.USD, Currency.JPY);
 
         // Exercise SUT
         ExchangeRate oldExchangeRate = new ExchangeRate(pair, 0.61, 0.82, 0.71, new Date());
@@ -87,7 +87,7 @@ public class ExchangeRateServiceTest {
 
     @Test
     public void testCachedResultIsNotReturnedForSubsequentCallsIfCacheStalePeriodIsPassed() throws ExchangeRateApiUnavailableException {
-        CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
+        CurrencyPair pair = new CurrencyPair(Currency.USD, Currency.JPY);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Calendar date = Calendar.getInstance();

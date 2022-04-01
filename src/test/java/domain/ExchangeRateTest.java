@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 public class ExchangeRateTest {
     @Test
     public void testExchangeRateIsOlderThanFalse() {
-        CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
+        CurrencyPair pair = new CurrencyPair(Currency.USD, Currency.JPY);
         ExchangeRate rate = new ExchangeRate(pair, 0.5, 0.5, 0.5, new Date());
 
         // Exercise SUT
@@ -26,7 +26,7 @@ public class ExchangeRateTest {
         int secondsAgo = 100;
         Date timeStamp = new Date(date.getTimeInMillis() - 100 * 1000);
 
-        CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
+        CurrencyPair pair = new CurrencyPair(Currency.USD, Currency.JPY);
         ExchangeRate rate = new ExchangeRate(pair, 0.5, 0.5, 0.5, timeStamp);
 
         // Exercise SUT
