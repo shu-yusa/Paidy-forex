@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpServer;
 import handler.HttpHandler;
 
 import java.io.InputStream;
+import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 
 import java.io.IOException;
@@ -27,12 +28,13 @@ public class ApiServer {
             ex.printStackTrace();
             return;
         }
+        ResourceBundle bundle = ResourceBundle.getBundle("messages");
 
         HttpHandler handler = new HttpHandler(
                 new ExchangeRateService(
                         new OneFrameApi(apiConfig),
                         new InMemoryExchangeRateCache(),
-                        stalePeriod));
+                        stalePeriod), bundle);
 
         HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
         server.setExecutor(Executors.newCachedThreadPool());

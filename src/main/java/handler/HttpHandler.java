@@ -10,15 +10,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ResourceBundle;
 
 
 public class HttpHandler {
-    ExchangeRateService exchangeRateService;
+    private final ExchangeRateService exchangeRateService;
+    private final ResourceBundle bundle;
     static final String CONTENT_TYPE_JSON = "application/json";
     static final String CONTENT_TYPE_HTML = "text/html";
 
-    public HttpHandler(ExchangeRateService exchangeRateService) {
+    public HttpHandler(ExchangeRateService exchangeRateService, ResourceBundle bundle) {
         this.exchangeRateService = exchangeRateService;
+        this.bundle = bundle;
     }
 
     public void handle(HttpExchange exchange) throws IOException {
@@ -35,7 +38,7 @@ public class HttpHandler {
 
         if (!errors.isEmpty()) {
             JSONObject responseObject = new JSONObject();
-            responseObject.put("message", "Parameters are invalid").put("errors", errors);
+            responseObject.put("message", this.bundle.getString("http_error_invalid_parameter")).put("errors", errors);
             String responseText = responseObject.toString();
             this.returnResponse(exchange, 400, CONTENT_TYPE_JSON, responseText);
             return;
@@ -47,7 +50,8 @@ public class HttpHandler {
                     Currency.valueOf(queryMap.get("from")),
                     Currency.valueOf(queryMap.get("to"))));
         } catch (ExchangeRateApiUnavailableException e) {
-            String responseText = (new JSONObject()).put("message", "Service is temporarily unavailable").toString();
+            String responseText = (new JSONObject()).put(
+                    "message", this.bundle.getString("http_error_service_unavailable")).toString();
             this.returnResponse(exchange, 503, CONTENT_TYPE_JSON, responseText);
             return;
         } catch (Exception e) {
@@ -76,26 +80,26 @@ public class HttpHandler {
         String toCurrency = queryMap.get("to");
         JSONObject errors = new JSONObject();
         if (fromCurrency == null) {
-            errors.put("from", "Required parameter");
+            errors.put("from", this.bundle.getString("http_error_required"));
         } else {
             try {
                 Currency.valueOf(fromCurrency);
             } catch (IllegalArgumentException e) {
-                errors.put("from", "Unsupported currency code");
+                errors.put("from", this.bundle.getString("http_error_unsupported_currency_code"));
             }
         }
         if (toCurrency == null) {
-            errors.put("to", "Required parameter");
+            errors.put("to", this.bundle.getString("http_error_required"));
         } else {
             try {
                 Currency.valueOf(toCurrency);
             } catch (IllegalArgumentException e) {
-                errors.put("to", "Unsupported currency code");
+                errors.put("to", this.bundle.getString("http_error_unsupported_currency_code"));
             }
         }
 
         if (toCurrency != null && toCurrency.equals(fromCurrency)) {
-            errors.put("to", "Different currencies should be specified");
+            errors.put("to", this.bundle.getString("http_error_same_currency_codes"));
         }
         return errors;
     }
