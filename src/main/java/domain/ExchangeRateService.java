@@ -18,8 +18,7 @@ public class ExchangeRateService {
         ExchangeRate lastExchangeLate = this.exchangeRateCache.newest(currencyPair);
         if (lastExchangeLate != null) {
             Date now = new Date();
-            long timeDiffInMillis = now.getTime() - lastExchangeLate.timeStamp().getTime();
-            if (timeDiffInMillis < this.stalePeriodInSecond * 1000L) {
+            if (!lastExchangeLate.isOlderThan(now, this.stalePeriodInSecond)) {
                 return lastExchangeLate;
             }
         }
