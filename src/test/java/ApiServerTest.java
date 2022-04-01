@@ -36,7 +36,7 @@ public class ApiServerTest {
         JSONObject result = new JSONObject(response.body());
         assertEquals("USD", result.get("from"));
         assertEquals("JPY", result.get("to"));
-        assertNotNull(result.get("price"));
+        assertNotNull(result.get("rate"));
     }
 
     @Test
