@@ -38,4 +38,20 @@ public class ApiServerTest {
         assertEquals("JPY", result.get("to"));
         assertNotNull(result.get("price"));
     }
+
+    @Test
+    public void testServerAccepts10000SameCurrencyPairRequestsWithoutReachingRateLimit() throws IOException, InterruptedException {
+        int serverPort = this.loadServerPort();
+        URI url = URI.create(String.format("http://127.0.0.1:%s?from=USD&to=JPY", serverPort));
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder().uri(url)
+                .header("Accept", "application/json")
+                .build();
+
+        // Exercise SUT
+        for (int i = 0; i < 10000; i++) {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertEquals(200, response.statusCode());
+        }
+    }
 }

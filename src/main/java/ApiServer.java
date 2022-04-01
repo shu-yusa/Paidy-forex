@@ -15,7 +15,6 @@ import java.util.Properties;
 public class ApiServer {
     public static void main(String... args) throws IOException {
         int serverPort;
-        int cacheSize;
         int stalePeriod;
         ApiConfig apiConfig;
         try (InputStream input = ApiServer.class.getClassLoader().getResourceAsStream("config.properties")) {
@@ -31,7 +30,9 @@ public class ApiServer {
 
         HttpHandler handler = new HttpHandler(
                 new ExchangeRateService(
-                        new OneFrameApi(apiConfig, new InMemoryExchangeRateCache(), stalePeriod)));
+                        new OneFrameApi(apiConfig),
+                        new InMemoryExchangeRateCache(),
+                        stalePeriod));
 
         HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
         server.setExecutor(Executors.newCachedThreadPool());

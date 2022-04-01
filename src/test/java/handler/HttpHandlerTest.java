@@ -1,5 +1,6 @@
 package handler;
 
+import adapter.InMemoryExchangeRateCache;
 import com.sun.net.httpserver.HttpExchange;
 import domain.*;
 import org.json.JSONObject;
@@ -21,7 +22,10 @@ public class HttpHandlerTest {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date time = dateFormat.parse(timeStamp);
-        return new ExchangeRateService(currencyPairs -> new ExchangeRate(pair, bid, ask, price, time));
+        return new ExchangeRateService(
+                currencyPairs -> new ExchangeRate(pair, bid, ask, price, time),
+                new InMemoryExchangeRateCache(),
+                100);
     }
 
     @Test
@@ -222,7 +226,7 @@ public class HttpHandlerTest {
     public void test503IsReturnedWhenExternalExchangeRateServiceIsNotAvailable() throws IOException {
         ExchangeRateService service = new ExchangeRateService(currencyPairs -> {
             throw new ExchangeRateApiUnavailableException();
-        });
+        }, new InMemoryExchangeRateCache(), 100);
 
         HttpHandler handler = new HttpHandler(service);
         HttpExchange exchange = new HttpExchangeStub("GET", "/?from=JPY&to=USD");

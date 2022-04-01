@@ -22,8 +22,8 @@ public class OneFrameTest {
     }
 
     @Test
-    public void testGetSingleExchangeRate() throws ExchangeRateApiUnavailableException {
-        apiClient = new OneFrameApi(this.config, this.exchangeRateCache, 100);
+    public void testGetExchangeRate() throws ExchangeRateApiUnavailableException {
+        apiClient = new OneFrameApi(this.config);
 
         int clockPrecisionRangeInMillis = 15000;
         CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
@@ -42,7 +42,7 @@ public class OneFrameTest {
     @Test
     @Ignore("Run separately to test the rate limit")
     public void testServerRateLimit() {
-        apiClient = new OneFrameApi(this.config, this.exchangeRateCache, 0);
+        apiClient = new OneFrameApi(this.config);
         CurrencyPair currencyPair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
 
         // Exercise SUT
@@ -55,58 +55,5 @@ public class OneFrameTest {
             // Verify result
             assertTrue(e.getMessage().contains("Quota"));
         }
-    }
-
-    @Test
-    public void testCachedResultIsReturnedForSubsequentRequests() throws ExchangeRateApiUnavailableException {
-        apiClient = new OneFrameApi(this.config, this.exchangeRateCache, 100);
-        CurrencyPair currencyPair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
-
-        // Exercise SUT
-        ExchangeRate exchangeRate1 = apiClient.exchangeRates(currencyPair);
-        ExchangeRate exchangeRate2 = apiClient.exchangeRates(currencyPair);
-
-        // Verify result
-        assertEquals(exchangeRate1.timeStamp(), exchangeRate2.timeStamp());
-    }
-
-    @Test
-    public void testCachedResultIsNotReturnedForSubsequentRequestsIfCacheStalePeriodIsPassed() throws ExchangeRateApiUnavailableException {
-        apiClient = new OneFrameApi(this.config, this.exchangeRateCache, 0);
-        CurrencyPair currencyPair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
-
-        // Exercise SUT
-        ExchangeRate exchangeRate1 = apiClient.exchangeRates(currencyPair);
-        ExchangeRate exchangeRate2 = apiClient.exchangeRates(currencyPair);
-
-        // Verify result
-        assertNotEquals(exchangeRate1.timeStamp(), exchangeRate2.timeStamp());
-    }
-
-    @Test
-    public void testServerAccepts10000RequestsWithoutReachingRateLimit() throws ExchangeRateApiUnavailableException {
-        apiClient = new OneFrameApi(this.config, this.exchangeRateCache, 100);
-        CurrencyPair currencyPair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
-
-        // Exercise SUT
-        ExchangeRate exchangeRate = apiClient.exchangeRates(currencyPair);
-        for (int i = 0; i < 10000; i++) {
-            ExchangeRate exchangeRate2 = apiClient.exchangeRates(currencyPair);
-            assertEquals(exchangeRate, exchangeRate2);
-        }
-    }
-
-    @Test
-    public void testCachedResultIsNotReturnedForDifferentCurrencyPairs() throws ExchangeRateApiUnavailableException {
-        apiClient = new OneFrameApi(this.config, this.exchangeRateCache, 100);
-
-        // Exercise SUT
-        CurrencyPair currencyPair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
-        ExchangeRate exchangeRate1 = apiClient.exchangeRates(currencyPair);
-        currencyPair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("AUD"));
-        ExchangeRate exchangeRate2 = apiClient.exchangeRates(currencyPair);
-
-        // Verify result
-        assertNotEquals(exchangeRate1.timeStamp(), exchangeRate2.timeStamp());
     }
 }

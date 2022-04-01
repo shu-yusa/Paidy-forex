@@ -1,12 +1,32 @@
 package domain;
 
+import java.util.Date;
+
 public class ExchangeRateService {
-    ExchangeRateApi exchangeRateApi;
-    public ExchangeRateService(ExchangeRateApi exchangeRateApi) {
+    private final ExchangeRateApi exchangeRateApi;
+    private final ExchangeRateCache exchangeRateCache;
+    private final int stalePeriodInSecond;
+
+    public ExchangeRateService(ExchangeRateApi exchangeRateApi, ExchangeRateCache exchangeRateCache, int stalePeriodInSecond) {
         this.exchangeRateApi = exchangeRateApi;
+        this.exchangeRateCache = exchangeRateCache;
+        this.stalePeriodInSecond = stalePeriodInSecond;
     }
 
     public ExchangeRate getExchangeRate(CurrencyPair currencyPair) throws ExchangeRateApiUnavailableException {
-        return this.exchangeRateApi.exchangeRates(currencyPair);
+        // If cached exchange rate is fresh enough to meet the requirement, return it.
+        ExchangeRate lastExchangeLate = this.exchangeRateCache.newest(currencyPair);
+        if (lastExchangeLate != null) {
+            Date now = new Date();
+            long timeDiffInMillis = now.getTime() - lastExchangeLate.timeStamp().getTime();
+            if (timeDiffInMillis < this.stalePeriodInSecond * 1000L) {
+                return lastExchangeLate;
+            }
+        }
+
+        ExchangeRate exchangeRate = this.exchangeRateApi.exchangeRates(currencyPair);
+
+        this.exchangeRateCache.add(exchangeRate);
+        return exchangeRate;
     }
 }

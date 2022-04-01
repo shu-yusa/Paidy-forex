@@ -17,14 +17,10 @@ import org.json.JSONArray;
 
 public class OneFrameApi implements ExchangeRateApi {
     private final ApiConfig config;
-    private final ExchangeRateCache exchangeRateCache;
-    private final int stalePeriodInSecond;
     private final HttpClient client;
 
-    public OneFrameApi(ApiConfig config, ExchangeRateCache exchangeRateCache, int stalePeriodInSecond) {
+    public OneFrameApi(ApiConfig config) {
         this.config = config;
-        this.exchangeRateCache = exchangeRateCache;
-        this.stalePeriodInSecond = stalePeriodInSecond;
         this.client = HttpClient.newHttpClient();
     }
 
@@ -43,22 +39,15 @@ public class OneFrameApi implements ExchangeRateApi {
     }
 
     public final ExchangeRate exchangeRates(CurrencyPair currencyPair) throws ExchangeRateApiUnavailableException {
-        String pair = "";
-        pair = String.format("&pair=%s%s", currencyPair.fromCurrency(), currencyPair.toCurrency());
-        pair = pair.replaceFirst("&", "?");
+        // Construct HTTP request
+        String pair = String.format(
+                "&pair=%s%s",
+                currencyPair.fromCurrency(),
+                currencyPair.toCurrency()).replaceFirst("&", "?");
         URI url = URI.create(String.format("%s/rates%s", config.host(), pair));
         HttpRequest request = HttpRequest.newBuilder().uri(url)
                 .header("Accept", "application/json")
                 .header("token", config.token()).build();
-
-        ExchangeRate lastExchangeLate = this.exchangeRateCache.newest(currencyPair);
-        if (lastExchangeLate != null) {
-            Date now = new Date();
-            long timeDiffInMillis = now.getTime() - lastExchangeLate.timeStamp().getTime();
-            if (timeDiffInMillis < this.stalePeriodInSecond * 1000L) {
-                return lastExchangeLate;
-            }
-        }
 
         Date timeStamp;
         try {
@@ -73,7 +62,7 @@ public class OneFrameApi implements ExchangeRateApi {
             JSONArray jsonArray = new JSONArray(responseBody);
             JSONObject obj = jsonArray.getJSONObject(0);
             timeStamp = this.parseDate(obj.getString("time_stamp"));
-            ExchangeRate exchangeRate = new ExchangeRate(
+            return new ExchangeRate(
                     new CurrencyPair(
                             Currency.valueOf(obj.getString("from")),
                             Currency.valueOf(obj.getString("to"))),
@@ -81,8 +70,6 @@ public class OneFrameApi implements ExchangeRateApi {
                     Math.floor(obj.getFloat("ask") * 100.0) / 100.0,
                     Math.floor(obj.getFloat("price") * 100.0) / 100.0,
                     timeStamp);
-            this.exchangeRateCache.add(exchangeRate);
-            return exchangeRate;
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             throw new ExchangeRateApiUnavailableException(e.getMessage());
