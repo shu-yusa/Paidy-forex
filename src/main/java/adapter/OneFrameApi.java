@@ -16,10 +16,16 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 public class OneFrameApi implements ExchangeRateApi {
-    ApiConfig config;
+    private final ApiConfig config;
+    private final ExchangeRateCache exchangeRateCache;
+    int stalePeriodInSecond;
+    HttpClient client;
 
-    public OneFrameApi(ApiConfig config) {
+    public OneFrameApi(ApiConfig config, ExchangeRateCache exchangeRateCache, int stalePeriodInSecond) {
         this.config = config;
+        this.exchangeRateCache = exchangeRateCache;
+        this.stalePeriodInSecond = stalePeriodInSecond;
+        this.client = HttpClient.newHttpClient();
     }
 
     private Date parseDate(String dateString) throws ParseException {
@@ -43,14 +49,22 @@ public class OneFrameApi implements ExchangeRateApi {
         }
         pairs = pairs.replaceFirst("&", "?");
         URI url = URI.create(String.format("%s/rates%s", config.host(), pairs));
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder().uri(url)
                 .header("Accept", "application/json")
                 .header("token", config.token()).build();
 
+        ExchangeRate lastExchangeLate = this.exchangeRateCache.newest();
+        if (lastExchangeLate != null) {
+            Date now = new Date();
+            long timeDiffInMillis = now.getTime() - lastExchangeLate.timeStamp().getTime();
+            if (timeDiffInMillis < this.stalePeriodInSecond * 1000L) {
+                return new ExchangeRate[]{lastExchangeLate};
+            }
+        }
+
         Date timeStamp;
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
             String responseBody = response.body();
 
             if (responseBody.contains("error")) {
@@ -71,6 +85,7 @@ public class OneFrameApi implements ExchangeRateApi {
                         Math.floor(obj.getFloat("ask") * 100.0) / 100.0,
                         Math.floor(obj.getFloat("price") * 100.0) / 100.0,
                         timeStamp);
+                this.exchangeRateCache.add(exchangeRates[i]);
             }
             return exchangeRates;
         } catch (IOException | InterruptedException e) {

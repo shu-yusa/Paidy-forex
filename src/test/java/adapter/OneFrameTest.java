@@ -12,15 +12,17 @@ import java.util.Date;
 
 public class OneFrameTest {
     OneFrameApi apiClient;
+    ApiConfig config;
 
     @Before
     public void setUp() {
-        ApiConfig config = new ApiConfig("http://localhost:8080", "10dc303535874aeccc86a8251e6992f5");
-        this.apiClient = new OneFrameApi(config);
+        this.config = new ApiConfig("http://localhost:8080", "10dc303535874aeccc86a8251e6992f5");
     }
 
     @Test
     public void testGetSingleExchangeRate() throws ExchangeRateApiUnavailableException {
+        apiClient = new OneFrameApi(this.config, new InMemoryExchangeRateCache(100), 100);
+
         int clockPrecisionRangeInMillis = 15000;
         CurrencyPair pair = new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY"));
         Calendar date = Calendar.getInstance();
@@ -39,6 +41,8 @@ public class OneFrameTest {
 
     @Test
     public void testGetTwoExchangeRates() throws ExchangeRateApiUnavailableException {
+        apiClient = new OneFrameApi(this.config, new InMemoryExchangeRateCache(100), 100);
+
         CurrencyPair[] currencyPairs = new CurrencyPair[]{
             new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY")),
             new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("AUD"))
@@ -56,9 +60,10 @@ public class OneFrameTest {
     @Test
     @Ignore("Run separately to test the rate limit")
     public void testServerRateLimit() {
+        apiClient = new OneFrameApi(this.config, new InMemoryExchangeRateCache(100), 0);
+
         CurrencyPair[] currencyPairs = new CurrencyPair[]{
                 new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY")),
-                new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("AUD"))
         };
 
         // Exercise SUT
@@ -70,6 +75,54 @@ public class OneFrameTest {
         } catch (ExchangeRateApiUnavailableException e) {
             // Verify result
             assertTrue(e.getMessage().contains("Quota"));
+        }
+    }
+
+    @Test
+    public void testCachedResultIsReturnedForSubsequentRequests() throws ExchangeRateApiUnavailableException {
+        apiClient = new OneFrameApi(this.config, new InMemoryExchangeRateCache(100), 100);
+
+        CurrencyPair[] currencyPairs = new CurrencyPair[]{
+                new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY")),
+        };
+
+        // Exercise SUT
+        ExchangeRate exchangeRate1 = apiClient.exchangeRates(currencyPairs)[0];
+        ExchangeRate exchangeRate2 = apiClient.exchangeRates(currencyPairs)[0];
+
+        // Verify result
+        assertEquals(exchangeRate1.timeStamp(), exchangeRate2.timeStamp());
+    }
+
+    @Test
+    public void testCachedResultIsNotReturnedForSubsequentRequestsIfCacheStalePeriodIsPassed() throws ExchangeRateApiUnavailableException, InterruptedException {
+        apiClient = new OneFrameApi(this.config, new InMemoryExchangeRateCache(100), 0);
+
+        CurrencyPair[] currencyPairs = new CurrencyPair[]{
+                new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY")),
+        };
+
+        // Exercise SUT
+        ExchangeRate exchangeRate1 = apiClient.exchangeRates(currencyPairs)[0];
+        ExchangeRate exchangeRate2 = apiClient.exchangeRates(currencyPairs)[0];
+
+        // Verify result
+        assertNotEquals(exchangeRate1.timeStamp(), exchangeRate2.timeStamp());
+    }
+
+    @Test
+    public void testServerAccepts10000RequestsWithoutReachingRateLimit() throws ExchangeRateApiUnavailableException {
+        apiClient = new OneFrameApi(this.config, new InMemoryExchangeRateCache(100), 100);
+
+        CurrencyPair[] currencyPairs = new CurrencyPair[]{
+                new CurrencyPair(Currency.valueOf("USD"), Currency.valueOf("JPY")),
+        };
+
+        // Exercise SUT
+        ExchangeRate exchangeRate = apiClient.exchangeRates(currencyPairs)[0];
+        for (int i = 0; i < 10000; i++) {
+            ExchangeRate exchangeRate2 = apiClient.exchangeRates(currencyPairs)[0];
+            assertEquals(exchangeRate, exchangeRate2);
         }
     }
 }
