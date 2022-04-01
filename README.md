@@ -23,7 +23,7 @@ curl "http://127.0.0.1/?from=USD&to=JPY"
 
 An example of the output looks like
 ```bash
-{"price":0.71,"from":"USD","to":"JPY"}
+{"rate":0.71,"from":"USD","to":"JPY"}
 ```
 
 ## API Specification
@@ -97,7 +97,7 @@ Parameter
     </td>
   </tr>
   <tr>
-   <td>price
+   <td>rate
    </td>
    <td>number
    </td>
@@ -113,7 +113,7 @@ Date: Fri, 01 Apr 2022 13:33:20 GMT
 Content-type: application/json
 Content-length: 38
 
-{"price":0.29,"from":"USD","to":"JPY"}
+{"rate":0.29,"from":"USD","to":"JPY"}
 ```
 ### Error Response
 When either or both of from or to parameters are missing, the application returns 400 response. Here is an example response when `to` parameter is missing.

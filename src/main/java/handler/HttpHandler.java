@@ -57,7 +57,7 @@ public class HttpHandler {
         String responseText = new JSONObject()
                 .put("from", exchangeRate.currencyPair().fromCurrency())
                 .put("to", exchangeRate.currencyPair().toCurrency())
-                .put("price", exchangeRate.price())
+                .put("rate", exchangeRate.price())
                 .toString();
         this.returnResponse(exchange, 200, CONTENT_TYPE_JSON, responseText);
     }

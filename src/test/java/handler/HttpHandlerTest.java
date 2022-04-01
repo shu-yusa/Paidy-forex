@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,8 +33,9 @@ public class HttpHandlerTest {
     public void testServer() throws ParseException, IOException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
+        double price = 0.71;
         ExchangeRateService service = this.create_exchange_rate_service(
-                fromCurrency, toCurrency, 0.61, 0.82, 0.71,
+                fromCurrency, toCurrency, 0.61, 0.82, price,
                 "2019-01-01T00:00:00.000");
 
         HttpHandler handler = new HttpHandler(service);
@@ -49,7 +51,8 @@ public class HttpHandlerTest {
         assertEquals("application/json", exchange.getResponseHeaders().get("Content-Type").get(0));
         assertEquals("USD", response.get("from"));
         assertEquals("JPY", response.get("to"));
-        assertNotNull(response.get("price"));
+        BigDecimal rate = (BigDecimal) response.get("rate");
+        assertEquals(price, rate.doubleValue(), 0.0001);
     }
 
     @Test
