@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 public class ApiServerTest {
     @Test
     public void testServer() throws InterruptedException, IOException {
-        URI url = URI.create("http://127.0.0.1?from=USD&to=JPY");
+        URI url = URI.create("http://127.0.0.1:8888?from=USD&to=JPY");
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder().uri(url)
                 .header("Accept", "application/json")

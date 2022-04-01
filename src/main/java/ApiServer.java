@@ -17,7 +17,7 @@ public class ApiServer {
                     new ApiConfig(
                         "http://localhost:8080", "10dc303535874aeccc86a8251e6992f5"))));
 
-        HttpServer server = HttpServer.create(new InetSocketAddress(80), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(8888), 0);
         server.setExecutor(Executors.newCachedThreadPool());
         server.createContext("/", handler::handle);
         server.start();
