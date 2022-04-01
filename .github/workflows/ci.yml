@@ -36,7 +36,7 @@ jobs:
           cache: maven
       - name: Test OneFrame Adapter 
         run: mvn -Dtest=OneFrameTest test
-      - name: Test Api Server
+      - name: Test API Server
         run: |
           sed -i "s/^server.port=80$/server.port=8888/" ./src/main/resources/config.properties
           mvn package
