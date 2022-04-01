@@ -34,8 +34,8 @@ public class ExchangeRateServiceTest {
 
         // Exercise SUT
         ExchangeRate exchangeRate = new ExchangeRate(pair, 0.61, 0.82, 0.71, timeStamp);
-        ExchangeRateService service = new ExchangeRateService(
-                currencyPairs -> exchangeRate,
+        QueryService<CurrencyPair, ExchangeRate> service = new CachingExchangeRateService(
+                new ExchangeRateService(currencyPairs -> exchangeRate),
                 this.createExchangeRateCacheStub(exchangeRate),
                 100);
         ExchangeRate result = service.query(pair);
@@ -53,10 +53,10 @@ public class ExchangeRateServiceTest {
         CurrencyPair pair = new CurrencyPair(Currency.USD, Currency.JPY);
 
         // Exercise SUT
-        ExchangeRateService service = new ExchangeRateService(
-                currencyPairs -> {
+        QueryService<CurrencyPair, ExchangeRate> service = new CachingExchangeRateService(
+                new ExchangeRateService(currencyPairs -> {
                     throw new ExchangeRateApiUnavailableException();
-                },
+                }),
                 this.createExchangeRateCacheStub(null),
                 100);
 
@@ -74,8 +74,8 @@ public class ExchangeRateServiceTest {
         // Exercise SUT
         ExchangeRate oldExchangeRate = new ExchangeRate(pair, 0.61, 0.82, 0.71, new Date());
         ExchangeRate newExchangeRate = new ExchangeRate(pair, 0.31, 0.52, 0.51, new Date());
-        ExchangeRateService service = new ExchangeRateService(
-                currencyPairs -> newExchangeRate,
+        QueryService<CurrencyPair, ExchangeRate> service = new CachingExchangeRateService(
+                new ExchangeRateService(currencyPairs -> newExchangeRate),
                 this.createExchangeRateCacheStub(oldExchangeRate),
                 100);
         ExchangeRate result = service.query(pair);
@@ -97,8 +97,8 @@ public class ExchangeRateServiceTest {
         // Exercise SUT
         ExchangeRate oldExchangeRate = new ExchangeRate(pair, 0.61, 0.82, 0.71, timeStamp);
         ExchangeRate newExchangeRate = new ExchangeRate(pair, 0.31, 0.52, 0.51, timeStamp);
-        ExchangeRateService service = new ExchangeRateService(
-                currencyPairs -> newExchangeRate,
+        QueryService<CurrencyPair, ExchangeRate> service = new CachingExchangeRateService(
+                new ExchangeRateService(currencyPairs -> newExchangeRate),
                 this.createExchangeRateCacheStub(oldExchangeRate),
                 stalePeriodInSecond);
         ExchangeRate result = service.query(pair);

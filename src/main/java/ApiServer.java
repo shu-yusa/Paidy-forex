@@ -1,5 +1,6 @@
 import adapter.InMemoryExchangeRateCache;
 import domain.ApiConfig;
+import domain.CachingExchangeRateService;
 import domain.ExchangeRateService;
 import adapter.OneFrameApi;
 import com.sun.net.httpserver.HttpServer;
@@ -31,10 +32,11 @@ public class ApiServer {
         ResourceBundle bundle = ResourceBundle.getBundle("messages");
 
         HttpHandler handler = new HttpHandler(
-                new ExchangeRateService(
-                        new OneFrameApi(apiConfig),
+                new CachingExchangeRateService(
+                        new ExchangeRateService(new OneFrameApi(apiConfig)),
                         new InMemoryExchangeRateCache(),
-                        stalePeriod), bundle);
+                        stalePeriod),
+                bundle);
 
         HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
         server.setExecutor(Executors.newCachedThreadPool());

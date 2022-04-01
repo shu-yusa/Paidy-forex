@@ -19,7 +19,7 @@ public class HttpHandler {
     static final String CONTENT_TYPE_JSON = "application/json";
     static final String CONTENT_TYPE_HTML = "text/html";
 
-    public HttpHandler(ExchangeRateService exchangeRateService, ResourceBundle bundle) {
+    public HttpHandler(QueryService<CurrencyPair, ExchangeRate> exchangeRateService, ResourceBundle bundle) {
         this.exchangeRateService = exchangeRateService;
         this.bundle = bundle;
     }

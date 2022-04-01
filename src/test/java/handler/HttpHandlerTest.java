@@ -25,19 +25,19 @@ public class HttpHandlerTest {
         this.bundle = ResourceBundle.getBundle("messages");
     }
 
-    private ExchangeRateService createExchangeRateService(
+    private QueryService<CurrencyPair, ExchangeRate> createExchangeRateService(
             String fromCurrency, String toCurrency, double bid, double ask, double price, String timeStamp) throws ParseException {
         CurrencyPair pair = new CurrencyPair(Currency.valueOf(fromCurrency), Currency.valueOf(toCurrency));
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date time = dateFormat.parse(timeStamp);
-        return new ExchangeRateService(
-                currencyPairs -> new ExchangeRate(pair, bid, ask, price, time),
+        return new CachingExchangeRateService(
+                new ExchangeRateService(currencyPairs -> new ExchangeRate(pair, bid, ask, price, time)),
                 new InMemoryExchangeRateCache(),
                 100);
     }
 
-    private HttpHandler createHttpServer(ExchangeRateService service) {
+    private HttpHandler createHttpServer(QueryService<CurrencyPair, ExchangeRate> service) {
         return new HttpHandler(service, this.bundle);
     }
 
@@ -46,7 +46,7 @@ public class HttpHandlerTest {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
         double price = 0.71;
-        ExchangeRateService service = this.createExchangeRateService(
+        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.61, 0.82, price,
                 "2019-01-01T00:00:00.000");
 
@@ -69,9 +69,9 @@ public class HttpHandlerTest {
 
     @Test
     public void test404IsReturnedForUnsupportedUrl() throws ParseException, IOException {
-        ExchangeRateService service = this.createExchangeRateService(
-                "JPY", "USD", 0.41, 0.32, 0.51,
-                "2019-01-02T00:00:00.000");
+        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+                "JPY", "USD", 0.61, 0.82, 0.51,
+                "2019-01-01T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
         HttpExchange exchange = new HttpExchangeStub("GET", "/foo");
@@ -88,7 +88,7 @@ public class HttpHandlerTest {
     public void test404IsReturnedForUnsupportedHttpMethod() throws ParseException, IOException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        ExchangeRateService service = this.createExchangeRateService(
+        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-02T00:00:00.000");
 
@@ -107,9 +107,9 @@ public class HttpHandlerTest {
     public void testMissingFromParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        ExchangeRateService service = this.createExchangeRateService(
+        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
-                "2019-01-02T00:00:00.000");
+                "2019-01-01T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
         String uri = String.format("/?to=%s", toCurrency);
@@ -130,9 +130,9 @@ public class HttpHandlerTest {
     public void testMissingToParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        ExchangeRateService service = this.createExchangeRateService(
+        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
-                "2019-01-02T00:00:00.000");
+                "2019-01-01T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
         String uri = String.format("/?from=%s", fromCurrency);
@@ -153,9 +153,9 @@ public class HttpHandlerTest {
     public void testMissingAllParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        ExchangeRateService service = this.createExchangeRateService(
+        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
-                "2019-01-02T00:00:00.000");
+                "2019-01-01T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
         HttpExchange exchange = new HttpExchangeStub("GET", "/");
@@ -176,9 +176,9 @@ public class HttpHandlerTest {
     public void testMissingInvalidFromCurrencyCodeParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        ExchangeRateService service = this.createExchangeRateService(
+        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
-                "2019-01-02T00:00:00.000");
+                "2019-01-01T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
         String uri = String.format("/?from=%s&to=%s", "TWD", toCurrency);
@@ -201,9 +201,9 @@ public class HttpHandlerTest {
     public void testMissingInvalidToCurrencyCodeParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        ExchangeRateService service = this.createExchangeRateService(
+        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
-                "2019-01-02T00:00:00.000");
+                "2019-01-01T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
         String uri = String.format("/?from=%s&to=%s", fromCurrency, "TWD");
@@ -226,9 +226,9 @@ public class HttpHandlerTest {
     public void testSuperfluousParameterIsIgnored() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        ExchangeRateService service = this.createExchangeRateService(
+        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
-                "2019-01-02T00:00:00.000");
+                "2019-01-01T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
         String uri = String.format("/?from=%s&to=%s&foo=bar", fromCurrency, toCurrency);
@@ -243,9 +243,12 @@ public class HttpHandlerTest {
 
     @Test
     public void test503IsReturnedWhenExternalExchangeRateServiceIsNotAvailable() throws IOException {
-        ExchangeRateService service = new ExchangeRateService(currencyPairs -> {
-            throw new ExchangeRateApiUnavailableException();
-        }, new InMemoryExchangeRateCache(), 100);
+        QueryService<CurrencyPair, ExchangeRate> service = new CachingExchangeRateService(
+                new ExchangeRateService(currencyPairs -> {
+                    throw new ExchangeRateApiUnavailableException();
+                }),
+                new InMemoryExchangeRateCache(),
+                100);
 
         HttpHandler handler = this.createHttpServer(service);
         HttpExchange exchange = new HttpExchangeStub("GET", "/?from=JPY&to=USD");
@@ -262,7 +265,7 @@ public class HttpHandlerTest {
     @Test
     public void test400IsReturnedForSameCurrencies() throws IOException, ParseException {
         String fromCurrency = "USD";
-        ExchangeRateService service = this.createExchangeRateService(
+        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
                 fromCurrency, fromCurrency, 0.61, 0.82, 0.71,
                 "2019-01-01T00:00:00.000");
 
