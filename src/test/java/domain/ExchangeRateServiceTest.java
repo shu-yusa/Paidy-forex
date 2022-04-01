@@ -38,7 +38,7 @@ public class ExchangeRateServiceTest {
                 currencyPairs -> exchangeRate,
                 this.createExchangeRateCacheStub(exchangeRate),
                 100);
-        ExchangeRate result = service.getExchangeRate(pair);
+        ExchangeRate result = service.query(pair);
 
         // Verify result
         assertEquals(pair, result.currencyPair());
@@ -61,7 +61,7 @@ public class ExchangeRateServiceTest {
                 100);
 
         try {
-            service.getExchangeRate(pair);
+            service.query(pair);
             fail();
         } catch (ExchangeRateApiUnavailableException ignored) {
         }
@@ -78,7 +78,7 @@ public class ExchangeRateServiceTest {
                 currencyPairs -> newExchangeRate,
                 this.createExchangeRateCacheStub(oldExchangeRate),
                 100);
-        ExchangeRate result = service.getExchangeRate(pair);
+        ExchangeRate result = service.query(pair);
 
         // Verify result
         assertEquals(oldExchangeRate, result);
@@ -101,7 +101,7 @@ public class ExchangeRateServiceTest {
                 currencyPairs -> newExchangeRate,
                 this.createExchangeRateCacheStub(oldExchangeRate),
                 stalePeriodInSecond);
-        ExchangeRate result = service.getExchangeRate(pair);
+        ExchangeRate result = service.query(pair);
 
         // Verify result
         assertEquals(newExchangeRate, result);

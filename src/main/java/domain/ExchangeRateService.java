@@ -2,7 +2,7 @@ package domain;
 
 import java.util.Date;
 
-public class ExchangeRateService {
+public class ExchangeRateService implements QueryService<CurrencyPair, ExchangeRate> {
     private final ExchangeRateApi exchangeRateApi;
     private final ExchangeRateCache exchangeRateCache;
     private final int stalePeriodInSecond;
@@ -13,7 +13,8 @@ public class ExchangeRateService {
         this.stalePeriodInSecond = stalePeriodInSecond;
     }
 
-    public ExchangeRate getExchangeRate(CurrencyPair currencyPair) throws ExchangeRateApiUnavailableException {
+    @Override
+    public ExchangeRate query(CurrencyPair currencyPair) throws ExchangeRateApiUnavailableException {
         // If cached exchange rate is fresh enough to meet the requirement, return it.
         ExchangeRate lastExchangeLate = this.exchangeRateCache.newest(currencyPair);
         if (lastExchangeLate != null) {

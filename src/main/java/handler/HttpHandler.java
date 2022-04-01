@@ -14,7 +14,7 @@ import java.util.ResourceBundle;
 
 
 public class HttpHandler {
-    private final ExchangeRateService exchangeRateService;
+    private final QueryService<CurrencyPair, ExchangeRate> exchangeRateService;
     private final ResourceBundle bundle;
     static final String CONTENT_TYPE_JSON = "application/json";
     static final String CONTENT_TYPE_HTML = "text/html";
@@ -46,7 +46,7 @@ public class HttpHandler {
 
         ExchangeRate exchangeRate;
         try {
-            exchangeRate = this.exchangeRateService.getExchangeRate(new CurrencyPair(
+            exchangeRate = this.exchangeRateService.query(new CurrencyPair(
                     Currency.valueOf(queryMap.get("from")),
                     Currency.valueOf(queryMap.get("to"))));
         } catch (ExchangeRateApiUnavailableException e) {
