@@ -127,6 +127,18 @@ Content-length: 73
 {"message":"Parameters are invalid","errors":{"to":"Required parameter"}}
 ```
 
+The following is a response example when an unsupported currency code is queried.
+```
+HTTP/1.1 400 Bad Request
+Date: Fri, 01 Apr 2022 15:57:09 GMT
+Content-type: application/json
+Content-length: 80
+
+{"message":"Parameters are invalid","errors":{"to":"Unsupported currency code"}}
+```
+
+
+
 When one-frame API is unavailable (when the container is not running or reached the rate limit), the application returns 503 response. Here is the response example.
 
 ```
