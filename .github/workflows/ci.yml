@@ -16,3 +16,29 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots verify
+  integration-tests:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: integration-test-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    services:
+      # Label used to access the service container
+      one-frame:
+        image: paidyinc/one-frame:latest
+        ports: ["8080:8080"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          cache: maven
+      - name: Test OneFrame Adapter 
+        run: mvn -Dtest=OneFrameTest test
+      - name: Test Api Server
+        run: |
+          mvn package
+          java -classpath ./target/classes:$HOME/.m2/repository/org/json/json/20220320/json-20220320.jar ApiServer &
+          PID=$!
+          mvn -Dtest=ApiServerTest test
