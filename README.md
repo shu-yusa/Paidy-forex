@@ -59,7 +59,7 @@ Parameter
    </td>
    <td>string
    </td>
-   <td>no
+   <td>yes
    </td>
    <td>Target currency code. Supported currency codes are AUD, CAD, CHF, EUR, GBP, NZD, JPY, SGD, USD.
     </td>
