@@ -18,8 +18,8 @@ import org.json.JSONArray;
 public class OneFrameApi implements ExchangeRateApi {
     private final ApiConfig config;
     private final ExchangeRateCache exchangeRateCache;
-    int stalePeriodInSecond;
-    HttpClient client;
+    private final int stalePeriodInSecond;
+    private final HttpClient client;
 
     public OneFrameApi(ApiConfig config, ExchangeRateCache exchangeRateCache, int stalePeriodInSecond) {
         this.config = config;
@@ -53,7 +53,7 @@ public class OneFrameApi implements ExchangeRateApi {
                 .header("Accept", "application/json")
                 .header("token", config.token()).build();
 
-        ExchangeRate lastExchangeLate = this.exchangeRateCache.newest();
+        ExchangeRate lastExchangeLate = this.exchangeRateCache.newest(currencyPairs[0]);
         if (lastExchangeLate != null) {
             Date now = new Date();
             long timeDiffInMillis = now.getTime() - lastExchangeLate.timeStamp().getTime();

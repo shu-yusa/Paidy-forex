@@ -23,7 +23,6 @@ public class ApiServer {
             prop.load(input);
             serverPort = Integer.parseInt(prop.getProperty("server.port"));
             apiConfig = new ApiConfig(prop.getProperty("service.host"), prop.getProperty("service.token"));
-            cacheSize = Integer.parseInt(prop.getProperty("server.cache_size"));
             stalePeriod = Integer.parseInt(prop.getProperty("server.stale_period"));
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -32,7 +31,7 @@ public class ApiServer {
 
         HttpHandler handler = new HttpHandler(
                 new ExchangeRateService(
-                        new OneFrameApi(apiConfig, new InMemoryExchangeRateCache(cacheSize), stalePeriod)));
+                        new OneFrameApi(apiConfig, new InMemoryExchangeRateCache(), stalePeriod)));
 
         HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
         server.setExecutor(Executors.newCachedThreadPool());

@@ -1,31 +1,29 @@
 package adapter;
 
+import domain.CurrencyPair;
 import domain.ExchangeRate;
 import domain.ExchangeRateCache;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class InMemoryExchangeRateCache implements ExchangeRateCache {
-    private final ArrayList<ExchangeRate> cachedExchangeRates;
-    private final int cacheSize;
+    private final Map<CurrencyPair, ExchangeRate> cachedExchangeRates;
 
-    public InMemoryExchangeRateCache(int cacheSize) {
-        this.cachedExchangeRates = new ArrayList<>(cacheSize);
-        this.cacheSize = cacheSize;
+    public InMemoryExchangeRateCache() {
+        this.cachedExchangeRates = new HashMap<>();
     }
 
-    public ExchangeRate newest() {
+    public ExchangeRate newest(CurrencyPair currencyPair) {
         if (this.cachedExchangeRates.isEmpty()) {
             return null;
         }
-        return this.cachedExchangeRates.get(this.cachedExchangeRates.size() - 1);
+        return this.cachedExchangeRates.get(currencyPair);
     }
 
     @Override
     public void add(ExchangeRate exchangeRate) {
-        if (this.cachedExchangeRates.size() == this.cacheSize) {
-            this.cachedExchangeRates.remove(0);
-        }
-        this.cachedExchangeRates.add(exchangeRate);
+        this.cachedExchangeRates.put(exchangeRate.currencyPair(), exchangeRate);
     }
 }
