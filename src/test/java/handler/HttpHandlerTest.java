@@ -219,7 +219,7 @@ public class HttpHandlerTest {
     }
 
     @Test
-    public void test503IsReturnedWhenExternalExchangeRateServiceIsNotAvailable() throws IOException, ParseException {
+    public void test503IsReturnedWhenExternalExchangeRateServiceIsNotAvailable() throws IOException {
         ExchangeRateService service = new ExchangeRateService(currencyPairs -> {
             throw new ExchangeRateApiUnavailableException();
         });
@@ -234,5 +234,26 @@ public class HttpHandlerTest {
         JSONObject response = new JSONObject(exchange.getResponseBody().toString());
         assertEquals(503, exchange.getResponseCode());
         assertEquals("Service is temporarily unavailable", response.get("message"));
+    }
+
+    @Test
+    public void test400IsReturnedForSameCurrencies() throws IOException, ParseException {
+        String fromCurrency = "USD";
+        ExchangeRateService service = this.create_exchange_rate_service(
+                fromCurrency, fromCurrency, 0.61, 0.82, 0.71,
+                "2019-01-01T00:00:00.000");
+
+        HttpHandler handler = new HttpHandler(service);
+        String uri = String.format("/?from=%s&to=%s", fromCurrency, fromCurrency);
+        HttpExchange exchange = new HttpExchangeStub("GET", uri);
+
+        // Exercise SUT
+        handler.handle(exchange);
+
+        // Verify result
+        JSONObject response = new JSONObject(exchange.getResponseBody().toString());
+        assertEquals(400, exchange.getResponseCode());
+        assertEquals("Parameters are invalid", response.get("message"));
+        assertEquals("Different currencies should be specified", response.getJSONObject("errors").get("to"));
     }
 }

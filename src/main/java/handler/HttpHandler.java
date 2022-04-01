@@ -4,7 +4,6 @@ import com.sun.net.httpserver.HttpExchange;
 import domain.*;
 import org.json.JSONObject;
 
-import javax.rmi.ssl.SslRMIClientSocketFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -52,7 +51,6 @@ public class HttpHandler {
             this.returnResponse(exchange, 503, CONTENT_TYPE_JSON, responseText);
             return;
         } catch (Exception e) {
-            System.out.println(e.toString());
             return;
         }
 
@@ -94,6 +92,10 @@ public class HttpHandler {
             } catch (IllegalArgumentException e) {
                 errors.put("to", "Unsupported currency code");
             }
+        }
+
+        if (toCurrency != null && toCurrency.equals(fromCurrency)) {
+            errors.put("to", "Different currencies should be specified");
         }
         return errors;
     }
