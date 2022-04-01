@@ -4,7 +4,6 @@ import domain.CurrencyPair;
 import domain.ExchangeRate;
 import domain.ExchangeRateCache;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +14,7 @@ public class InMemoryExchangeRateCache implements ExchangeRateCache {
         this.cachedExchangeRates = new HashMap<>();
     }
 
+    @Override
     public ExchangeRate newest(CurrencyPair currencyPair) {
         if (this.cachedExchangeRates.isEmpty()) {
             return null;

@@ -1,6 +1,6 @@
 package domain;
 
 public interface ExchangeRateCache {
-    public ExchangeRate newest(CurrencyPair currencyPair);
-    public void add(ExchangeRate exchangeRate);
+    ExchangeRate newest(CurrencyPair currencyPair);
+    void add(ExchangeRate exchangeRate);
 }
