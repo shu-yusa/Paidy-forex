@@ -38,6 +38,7 @@ public class OneFrameApi implements ExchangeRateApi {
         return timeStamp;
     }
 
+    @Override
     public final ExchangeRate exchangeRates(CurrencyPair currencyPair) throws ExchangeRateApiUnavailableException {
         // Construct HTTP request
         String pair = String.format(
@@ -70,12 +71,12 @@ public class OneFrameApi implements ExchangeRateApi {
                     Math.floor(obj.getFloat("ask") * 100.0) / 100.0,
                     Math.floor(obj.getFloat("price") * 100.0) / 100.0,
                     timeStamp);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            throw new ExchangeRateApiUnavailableException(e.getMessage());
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             System.out.println("Failed in parsing time");
-            throw new RuntimeException(e);
+            throw new ExchangeRateApiUnavailableException();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+        return null;
     }
 }
