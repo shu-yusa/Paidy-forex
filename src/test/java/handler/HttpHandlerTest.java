@@ -68,25 +68,6 @@ public class HttpHandlerTest {
     }
 
     @Test
-    public void test404IsReturnedForUnsupportedHttpMethod() throws ParseException, IOException {
-        String fromCurrency = "USD";
-        String toCurrency = "JPY";
-        ExchangeRateService service = this.createExchangeRateService(
-                fromCurrency, toCurrency, 0.41, 0.32, 0.51,
-                "2019-01-02T00:00:00.000");
-
-        HttpHandler handler = this.createHttpServer(service);
-        String uri = String.format("/rate?from=%s&to=%s", fromCurrency, toCurrency);
-        HttpExchange exchange = new HttpExchangeStub("POST", uri);
-
-        // Exercise SUT
-        handler.handle(exchange);
-
-        // Verify result
-        assertEquals(404, exchange.getResponseCode());
-    }
-
-    @Test
     public void testMissingFromParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
