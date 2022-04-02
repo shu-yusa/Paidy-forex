@@ -22,7 +22,7 @@ public class ApiServerTest {
     @Test
     public void testServer() throws InterruptedException, IOException {
         int serverPort = this.loadServerPort();
-        URI url = URI.create(String.format("http://127.0.0.1:%s?from=USD&to=JPY", serverPort));
+        URI url = URI.create(String.format("http://127.0.0.1:%s/rate?from=USD&to=JPY", serverPort));
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder().uri(url)
                 .header("Accept", "application/json")
@@ -42,7 +42,7 @@ public class ApiServerTest {
     @Test
     public void testServerAccepts10000SameCurrencyPairRequestsWithoutReachingRateLimit() throws IOException, InterruptedException {
         int serverPort = this.loadServerPort();
-        URI url = URI.create(String.format("http://127.0.0.1:%s?from=USD&to=JPY", serverPort));
+        URI url = URI.create(String.format("http://127.0.0.1:%s/rate?from=USD&to=JPY", serverPort));
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder().uri(url)
                 .header("Accept", "application/json")

@@ -26,7 +26,7 @@ public class HttpHandler {
 
     public void handle(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
-        if (!Objects.equals(exchange.getRequestMethod(), "GET") || !Objects.equals(path, "/")) {
+        if (!Objects.equals(exchange.getRequestMethod(), "GET")) {
             String responseText = "<html><body>Not Found</body></html>";
             this.returnResponse(exchange, 404, CONTENT_TYPE_HTML, responseText);
             return;

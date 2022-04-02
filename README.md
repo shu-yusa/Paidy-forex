@@ -18,7 +18,7 @@ docker compose up -d  # This runs the paidyinc/one-frame container
 
 To get an exchange rate, run the following command (or open the url with a web browser)
 ```bash
-curl "http://127.0.0.1/?from=USD&to=JPY"
+curl "http://127.0.0.1/rate?from=USD&to=JPY"
 ```
 
 An example of the output looks like
@@ -29,7 +29,7 @@ An example of the output looks like
 ## API Specification
 The following is the more formal API specification.
 
-* Endpoint: http://127.0.0.1/
+* Endpoint: http://127.0.0.1/rate
 * HTTP Method: GET
 
 <table>
