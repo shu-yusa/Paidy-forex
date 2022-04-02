@@ -51,7 +51,7 @@ public class HttpHandlerTest {
                 "2019-01-01T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
-        String uri = String.format("/?from=%s&to=%s", fromCurrency, toCurrency);
+        String uri = String.format("/rate?from=%s&to=%s", fromCurrency, toCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
         // Exercise SUT
@@ -68,42 +68,6 @@ public class HttpHandlerTest {
     }
 
     @Test
-    public void test404IsReturnedForUnsupportedUrl() throws ParseException, IOException {
-        ExchangeRateService service = this.createExchangeRateService(
-                "JPY", "USD", 0.41, 0.32, 0.51,
-                "2019-01-02T00:00:00.000");
-
-        HttpHandler handler = this.createHttpServer(service);
-        HttpExchange exchange = new HttpExchangeStub("GET", "/foo");
-
-        // Exercise SUT
-        handler.handle(exchange);
-
-        // Verify result
-        assertEquals(404, exchange.getResponseCode());
-        assertEquals("text/html", exchange.getResponseHeaders().get("Content-Type").get(0));
-    }
-
-    @Test
-    public void test404IsReturnedForUnsupportedHttpMethod() throws ParseException, IOException {
-        String fromCurrency = "USD";
-        String toCurrency = "JPY";
-        ExchangeRateService service = this.createExchangeRateService(
-                fromCurrency, toCurrency, 0.41, 0.32, 0.51,
-                "2019-01-02T00:00:00.000");
-
-        HttpHandler handler = this.createHttpServer(service);
-        String uri = String.format("/?from=%s&to=%s", fromCurrency, toCurrency);
-        HttpExchange exchange = new HttpExchangeStub("POST", uri);
-
-        // Exercise SUT
-        handler.handle(exchange);
-
-        // Verify result
-        assertEquals(404, exchange.getResponseCode());
-    }
-
-    @Test
     public void testMissingFromParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
@@ -112,7 +76,7 @@ public class HttpHandlerTest {
                 "2019-01-02T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
-        String uri = String.format("/?to=%s", toCurrency);
+        String uri = String.format("/rate?to=%s", toCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
         // Exercise SUT
@@ -135,7 +99,7 @@ public class HttpHandlerTest {
                 "2019-01-02T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
-        String uri = String.format("/?from=%s", fromCurrency);
+        String uri = String.format("/rate?from=%s", fromCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
         // Exercise SUT
@@ -181,7 +145,7 @@ public class HttpHandlerTest {
                 "2019-01-02T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
-        String uri = String.format("/?from=%s&to=%s", "TWD", toCurrency);
+        String uri = String.format("/rate?from=%s&to=%s", "TWD", toCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
         // Exercise SUT
@@ -206,7 +170,7 @@ public class HttpHandlerTest {
                 "2019-01-02T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
-        String uri = String.format("/?from=%s&to=%s", fromCurrency, "TWD");
+        String uri = String.format("/rate?from=%s&to=%s", fromCurrency, "TWD");
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
         // Exercise SUT
@@ -231,7 +195,7 @@ public class HttpHandlerTest {
                 "2019-01-02T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
-        String uri = String.format("/?from=%s&to=%s&foo=bar", fromCurrency, toCurrency);
+        String uri = String.format("/rate?from=%s&to=%s&foo=bar", fromCurrency, toCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
         // Exercise SUT
@@ -267,7 +231,7 @@ public class HttpHandlerTest {
                 "2019-01-01T00:00:00.000");
 
         HttpHandler handler = this.createHttpServer(service);
-        String uri = String.format("/?from=%s&to=%s", fromCurrency, fromCurrency);
+        String uri = String.format("/rate?from=%s&to=%s", fromCurrency, fromCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
         // Exercise SUT

@@ -38,7 +38,7 @@ public class ApiServer {
 
         HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
         server.setExecutor(Executors.newCachedThreadPool());
-        server.createContext("/", handler::handle);
+        server.createContext("/rate", handler::handle);
         server.start();
         System.out.printf("start listening on port %s%n", serverPort);
     }
