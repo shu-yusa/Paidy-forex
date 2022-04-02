@@ -1,5 +1,5 @@
 package domain;
 
-public interface QueryService<S, T>  {
-    T query(S input) throws ExchangeRateApiUnavailableException;
+public interface QueryService<S, T, E extends Throwable>  {
+    T query(S input) throws E;
 }

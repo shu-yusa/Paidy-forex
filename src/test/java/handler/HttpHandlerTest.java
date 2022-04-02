@@ -25,19 +25,19 @@ public class HttpHandlerTest {
         this.bundle = ResourceBundle.getBundle("messages");
     }
 
-    private QueryService<CurrencyPair, ExchangeRate> createExchangeRateService(
+    private ExchangeRateService createExchangeRateService(
             String fromCurrency, String toCurrency, double bid, double ask, double price, String timeStamp) throws ParseException {
         CurrencyPair pair = new CurrencyPair(Currency.valueOf(fromCurrency), Currency.valueOf(toCurrency));
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date time = dateFormat.parse(timeStamp);
         return new CachingExchangeRateService(
-                new ExchangeRateService(currencyPairs -> new ExchangeRate(pair, bid, ask, price, time)),
+                new ExchangeRateApiService(currencyPairs -> new ExchangeRate(pair, bid, ask, price, time)),
                 new InMemoryExchangeRateCache(),
                 100);
     }
 
-    private HttpHandler createHttpServer(QueryService<CurrencyPair, ExchangeRate> service) {
+    private HttpHandler createHttpServer(ExchangeRateService service) {
         return new HttpHandler(service, this.bundle);
     }
 
@@ -46,7 +46,7 @@ public class HttpHandlerTest {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
         double price = 0.71;
-        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+        ExchangeRateService service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.61, 0.82, price,
                 "2019-01-01T00:00:00.000");
 
@@ -69,7 +69,7 @@ public class HttpHandlerTest {
 
     @Test
     public void test404IsReturnedForUnsupportedUrl() throws ParseException, IOException {
-        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+        ExchangeRateService service = this.createExchangeRateService(
                 "JPY", "USD", 0.61, 0.82, 0.51,
                 "2019-01-01T00:00:00.000");
 
@@ -88,7 +88,7 @@ public class HttpHandlerTest {
     public void test404IsReturnedForUnsupportedHttpMethod() throws ParseException, IOException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+        ExchangeRateService service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-02T00:00:00.000");
 
@@ -107,7 +107,7 @@ public class HttpHandlerTest {
     public void testMissingFromParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+        ExchangeRateService service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
@@ -130,7 +130,7 @@ public class HttpHandlerTest {
     public void testMissingToParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+        ExchangeRateService service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
@@ -153,7 +153,7 @@ public class HttpHandlerTest {
     public void testMissingAllParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+        ExchangeRateService service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
@@ -176,7 +176,7 @@ public class HttpHandlerTest {
     public void testMissingInvalidFromCurrencyCodeParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+        ExchangeRateService service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
@@ -201,7 +201,7 @@ public class HttpHandlerTest {
     public void testMissingInvalidToCurrencyCodeParameter() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+        ExchangeRateService service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
@@ -226,7 +226,7 @@ public class HttpHandlerTest {
     public void testSuperfluousParameterIsIgnored() throws IOException, ParseException {
         String fromCurrency = "USD";
         String toCurrency = "JPY";
-        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+        ExchangeRateService service = this.createExchangeRateService(
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
@@ -243,8 +243,8 @@ public class HttpHandlerTest {
 
     @Test
     public void test503IsReturnedWhenExternalExchangeRateServiceIsNotAvailable() throws IOException {
-        QueryService<CurrencyPair, ExchangeRate> service = new CachingExchangeRateService(
-                new ExchangeRateService(currencyPairs -> {
+        ExchangeRateService service = new CachingExchangeRateService(
+                new ExchangeRateApiService(currencyPairs -> {
                     throw new ExchangeRateApiUnavailableException();
                 }),
                 new InMemoryExchangeRateCache(),
@@ -265,7 +265,7 @@ public class HttpHandlerTest {
     @Test
     public void test400IsReturnedForSameCurrencies() throws IOException, ParseException {
         String fromCurrency = "USD";
-        QueryService<CurrencyPair, ExchangeRate> service = this.createExchangeRateService(
+        ExchangeRateService service = this.createExchangeRateService(
                 fromCurrency, fromCurrency, 0.61, 0.82, 0.71,
                 "2019-01-01T00:00:00.000");
 

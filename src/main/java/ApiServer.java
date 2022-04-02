@@ -1,7 +1,7 @@
 import adapter.InMemoryExchangeRateCache;
 import domain.ApiConfig;
 import domain.CachingExchangeRateService;
-import domain.ExchangeRateService;
+import domain.ExchangeRateApiService;
 import adapter.OneFrameApi;
 import com.sun.net.httpserver.HttpServer;
 import handler.HttpHandler;
@@ -33,7 +33,7 @@ public class ApiServer {
 
         HttpHandler handler = new HttpHandler(
                 new CachingExchangeRateService(
-                        new ExchangeRateService(new OneFrameApi(apiConfig)),
+                        new ExchangeRateApiService(new OneFrameApi(apiConfig)),
                         new InMemoryExchangeRateCache(),
                         stalePeriod),
                 bundle);

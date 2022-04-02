@@ -14,12 +14,12 @@ import java.util.ResourceBundle;
 
 
 public class HttpHandler {
-    private final QueryService<CurrencyPair, ExchangeRate> exchangeRateService;
+    private final ExchangeRateService exchangeRateService;
     private final ResourceBundle bundle;
     static final String CONTENT_TYPE_JSON = "application/json";
     static final String CONTENT_TYPE_HTML = "text/html";
 
-    public HttpHandler(QueryService<CurrencyPair, ExchangeRate> exchangeRateService, ResourceBundle bundle) {
+    public HttpHandler(ExchangeRateService exchangeRateService, ResourceBundle bundle) {
         this.exchangeRateService = exchangeRateService;
         this.bundle = bundle;
     }

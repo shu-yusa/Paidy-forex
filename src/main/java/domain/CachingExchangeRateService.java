@@ -2,12 +2,14 @@ package domain;
 
 import java.util.Date;
 
-public class CachingExchangeRateService implements QueryService<CurrencyPair, ExchangeRate> {
-    private final QueryService<CurrencyPair, ExchangeRate> exchangeRateQueryService;
+public class CachingExchangeRateService extends ExchangeRateService {
+    private final ExchangeRateService exchangeRateQueryService;
     private final ExchangeRateCache exchangeRateCache;
     private final int stalePeriodInSecond;
 
-    public CachingExchangeRateService(QueryService<CurrencyPair, ExchangeRate> exchangeRateQueryService, ExchangeRateCache exchangeRateCache, int stalePeriodInSecond) {
+    public CachingExchangeRateService(
+            ExchangeRateApiService exchangeRateQueryService,
+            ExchangeRateCache exchangeRateCache, int stalePeriodInSecond) {
         this.exchangeRateQueryService = exchangeRateQueryService;
         this.exchangeRateCache = exchangeRateCache;
         this.stalePeriodInSecond = stalePeriodInSecond;
