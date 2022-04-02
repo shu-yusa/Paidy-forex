@@ -37,7 +37,7 @@ public class HttpHandlerTest {
                 100);
     }
 
-    private HttpHandler createHttpServer(ExchangeRateService service) {
+    private HttpHandler createHttpHandler(ExchangeRateService service) {
         return new HttpHandler(service, this.bundle);
     }
 
@@ -50,7 +50,7 @@ public class HttpHandlerTest {
                 fromCurrency, toCurrency, 0.61, 0.82, price,
                 "2019-01-01T00:00:00.000");
 
-        HttpHandler handler = this.createHttpServer(service);
+        HttpHandler handler = this.createHttpHandler(service);
         String uri = String.format("/rate?from=%s&to=%s", fromCurrency, toCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
@@ -75,7 +75,7 @@ public class HttpHandlerTest {
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
-        HttpHandler handler = this.createHttpServer(service);
+        HttpHandler handler = this.createHttpHandler(service);
         String uri = String.format("/rate?to=%s", toCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
@@ -98,7 +98,7 @@ public class HttpHandlerTest {
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
-        HttpHandler handler = this.createHttpServer(service);
+        HttpHandler handler = this.createHttpHandler(service);
         String uri = String.format("/rate?from=%s", fromCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
@@ -121,7 +121,7 @@ public class HttpHandlerTest {
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
-        HttpHandler handler = this.createHttpServer(service);
+        HttpHandler handler = this.createHttpHandler(service);
         HttpExchange exchange = new HttpExchangeStub("GET", "/");
 
         // Exercise SUT
@@ -144,7 +144,7 @@ public class HttpHandlerTest {
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
-        HttpHandler handler = this.createHttpServer(service);
+        HttpHandler handler = this.createHttpHandler(service);
         String uri = String.format("/rate?from=%s&to=%s", "TWD", toCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
@@ -169,7 +169,7 @@ public class HttpHandlerTest {
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
-        HttpHandler handler = this.createHttpServer(service);
+        HttpHandler handler = this.createHttpHandler(service);
         String uri = String.format("/rate?from=%s&to=%s", fromCurrency, "TWD");
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
@@ -194,7 +194,7 @@ public class HttpHandlerTest {
                 fromCurrency, toCurrency, 0.41, 0.32, 0.51,
                 "2019-01-01T00:00:00.000");
 
-        HttpHandler handler = this.createHttpServer(service);
+        HttpHandler handler = this.createHttpHandler(service);
         String uri = String.format("/rate?from=%s&to=%s&foo=bar", fromCurrency, toCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
@@ -214,7 +214,7 @@ public class HttpHandlerTest {
                 new InMemoryExchangeRateCache(),
                 100);
 
-        HttpHandler handler = this.createHttpServer(service);
+        HttpHandler handler = this.createHttpHandler(service);
         HttpExchange exchange = new HttpExchangeStub("GET", "/?from=JPY&to=USD");
 
         // Exercise SUT
@@ -233,7 +233,7 @@ public class HttpHandlerTest {
                 fromCurrency, fromCurrency, 0.61, 0.82, 0.71,
                 "2019-01-01T00:00:00.000");
 
-        HttpHandler handler = this.createHttpServer(service);
+        HttpHandler handler = this.createHttpHandler(service);
         String uri = String.format("/rate?from=%s&to=%s", fromCurrency, fromCurrency);
         HttpExchange exchange = new HttpExchangeStub("GET", uri);
 
