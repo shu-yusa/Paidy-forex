@@ -142,7 +142,7 @@ The following is a response example when an exchange rate for a same currency is
 HTTP/1.1 400 Bad Request
 Date: Fri, 01 Apr 2022 15:57:09 GMT
 Content-type: application/json
-Content-length: 80
+Content-length: 95
 
 {"message":"Parameters are invalid","errors":{"to":"Different currencies should be specified"}}
 ```
