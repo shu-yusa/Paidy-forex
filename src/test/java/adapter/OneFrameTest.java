@@ -34,6 +34,7 @@ public class OneFrameTest {
         ExchangeRate rate = apiClient.exchangeRates(pair);
 
         // Verify result
+        assertNotNull(rate);
         assertEquals(pair, rate.currencyPair());
         assertTrue(rate.timeStamp().after(timeBeforeApiCall));
         assertTrue(rate.timeStamp().before(new Date(date.getTimeInMillis() + clockPrecisionRangeInMillis)));
